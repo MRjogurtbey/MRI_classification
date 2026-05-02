@@ -77,7 +77,7 @@ def _plot_confusion_matrix(cm, class_names, save_dir: str):
     out = f"{save_dir}/confusion_matrix.png"
     fig.savefig(out, dpi=150)
     plt.close(fig)
-    print(f"Confusion matrix saved → {out}")
+    print(f"Confusion matrix saved -> {out}")
 
 
 def plot_per_class_metrics(all_labels, all_preds, class_names, save_dir: str):
@@ -141,4 +141,4 @@ def plot_training_curves(history: dict, save_dir: str = "."):
     out = f"{save_dir}/training_curves.png"
     fig.savefig(out, dpi=150)
     plt.close(fig)
-    print(f"Training curves saved → {out}")
+    print(f"Training curves saved -> {out}")

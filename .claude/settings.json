@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git merge *)",
+      "Bash(python -c \"import ast; [print\\(f'OK: {f}'\\) for f in ['app.py','train.py','ollama_report.py'] if ast.parse\\(open\\(f\\).read\\(\\)\\)]\")",
+      "Bash(python -c ' *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

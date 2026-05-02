@@ -9,7 +9,10 @@
       "Bash(grep -v \"\\\\.jpg$\")",
       "Bash(python -c \"import ast, sys; files=['dataset.py','model.py','train.py','evaluate.py','main.py']; [print\\(f'OK: {f}'\\) if ast.parse\\(open\\(f\\).read\\(\\)\\) else None for f in files]; print\\('All syntax checks passed.'\\)\")",
       "Bash(python -c \"import ast; files=['train.py','model.py','main.py']; [print\\(f'OK: {f}'\\) for f in files if ast.parse\\(open\\(f\\).read\\(\\)\\)]\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

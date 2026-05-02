@@ -1,40 +1,38 @@
 import requests
 
-CLASS_DESCRIPTIONS = {
-    "glioma": "Glioma (beyin ve omurilikte bulunan glial hücre kaynaklı tümör)",
-    "meningioma": "Meningioma (beyin zarlarından kaynaklanan genellikle iyi huylu tümör)",
-    "notumor": "Tümör tespit edilmedi (normal beyin dokusu görünümü)",
-    "pituitary": "Pituitary tümör (hipofiz bezi kaynaklı tümör)",
+_DESCRIPTIONS = {
+    "glioma":      "Glioma (beyin/omurilikte glial hücre kaynaklı malign tümör)",
+    "meningioma":  "Meningioma (beyin zarlarından kaynaklanan genellikle iyi huylu tümör)",
+    "notumor":     "Tümör tespit edilmedi (normal beyin dokusu görünümü)",
+    "pituitary":   "Pituitary tümör (hipofiz bezi kaynaklı tümör)",
 }
 
-PROMPT_TEMPLATE = """Sen bir radyoloji asistanısın. Bir yapay zeka MRI sınıflandırma modelinin çıktısına dayanarak doktora yönelik kısa ve profesyonel bir ön rapor özeti hazırlıyorsun.
+_PROMPT = """Sen bir radyoloji asistanısın. Yapay zeka MRI sınıflandırma sonucuna dayanarak doktora yönelik kısa, profesyonel bir ön rapor hazırlıyorsun.
 
 Model Tahmini: {description}
 
-Lütfen şu kurallara uy:
-- 3-4 cümle yaz.
-- Tıbbi terminoloji kullan ama anlaşılır ol.
-- Kesin tanı koyma, bu bir ön değerlendirmedir.
-- Türkçe yaz.
+Kurallar:
+- 3-4 cümle, Türkçe
+- Tıbbi terminoloji kullan ama anlaşılır ol
+- Kesin tanı koyma, "ön değerlendirme" olduğunu belirt
 
 Ön Rapor:"""
 
 
 def generate_report(predicted_class: str, ollama_model: str = "llama3") -> str:
-    description = CLASS_DESCRIPTIONS.get(predicted_class, predicted_class)
-    prompt = PROMPT_TEMPLATE.format(description=description)
-
+    key = predicted_class.lower().replace(" ", "")
+    description = _DESCRIPTIONS.get(key, predicted_class)
     try:
-        response = requests.post(
+        resp = requests.post(
             "http://localhost:11434/api/generate",
-            json={"model": ollama_model, "prompt": prompt, "stream": False},
+            json={"model": ollama_model, "prompt": _PROMPT.format(description=description), "stream": False},
             timeout=60,
         )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
+        resp.raise_for_status()
+        return resp.json().get("response", "").strip()
     except requests.exceptions.ConnectionError:
-        return "Ollama servisi çalışmıyor. Lütfen terminalde `ollama serve` komutunu çalıştırın."
+        return "Ollama servisi çalışmıyor. Terminalde `ollama serve` komutunu çalıştırın."
     except requests.exceptions.Timeout:
-        return "Ollama yanıt süresi aşıldı. Model yükleniyor olabilir, tekrar deneyin."
+        return "Ollama yanıt vermedi. Model yükleniyor olabilir, tekrar deneyin."
     except Exception as e:
-        return f"Rapor oluşturulamadı: {e}"
+        return f"Rapor üretilemedi: {e}"
