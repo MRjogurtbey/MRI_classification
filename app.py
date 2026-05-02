@@ -128,10 +128,15 @@ with st.sidebar:
                           help="5 augmentation ile tahmin yap, daha doğru ama yavaş")
 
     st.markdown("---")
-    st.markdown("## 🤖 Ollama Raporu")
+    st.markdown("## 🤖 AI Raporu")
     use_ollama = st.toggle("AI Raporu Üret", value=True)
+    report_backend = st.selectbox(
+        "Backend",
+        ["auto", "groq", "gemini", "ollama"],
+        help="auto: Ollama → Groq → Gemini sırasıyla dener",
+    )
     ollama_model = st.selectbox("Ollama Modeli", ["llama3", "mistral", "llama3.2", "gemma2"])
-    st.caption("Çalışmıyorsa terminalde: `ollama serve`")
+    st.caption("Yerel: `ollama serve` | Bulut: Secrets'a GROQ_API_KEY veya GEMINI_API_KEY ekle")
 
     st.markdown("---")
     st.markdown("## 🔬 Aktif Öğrenme")
@@ -275,10 +280,11 @@ if uploaded_file is not None and show_gradcam and "cam_map" in st.session_state:
 if "predicted_class" in st.session_state and use_ollama:
     st.markdown("---")
     st.markdown("### 📋 Yapay Zeka Ön Raporu")
-    with st.spinner("Ollama rapor hazırlıyor..."):
+    with st.spinner("AI raporu hazırlanıyor..."):
         report = generate_report(
             st.session_state.predicted_class.lower(),
             ollama_model=ollama_model,
+            backend=report_backend,
         )
     st.info(report)
     st.caption("⚠️ Bu rapor ön değerlendirmedir. Kesin tanı için radyolog onayı şarttır.")
