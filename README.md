@@ -88,14 +88,63 @@ cp your_trained_model.pt models/best_model.pt
 
 ## 🚀 Kullanım
 
-### Streamlit Arayüzü
+### 1. Streamlit Arayüzü (Web UI)
 ```bash
 streamlit run app.py
 ```
 
 Tarayıcınızda otomatik olarak açılacaktır: `http://localhost:8501`
 
-### Python API Kullanımı
+### 2. REST API (FastAPI)
+```bash
+# API sunucusunu başlat
+python api.py
+```
+
+API otomatik olarak `http://localhost:8000` adresinde çalışacaktır.
+
+**Swagger UI Dokümantasyonu:** `http://localhost:8000/docs`
+
+**Örnek API Kullanımı:**
+
+```bash
+# cURL ile tahmin
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@path/to/mri_image.jpg"
+
+# Test-Time Augmentation ile
+curl -X POST "http://localhost:8000/predict?use_tta=true" \
+  -F "file=@path/to/mri_image.jpg"
+```
+
+**Python ile API Kullanımı:**
+
+```python
+import requests
+
+# MRI görselini yükle ve tahmin al
+url = "http://localhost:8000/predict"
+files = {"file": open("mri_image.jpg", "rb")}
+response = requests.post(url, files=files)
+
+result = response.json()
+print(f"Sınıf: {result['predicted_class']}")
+print(f"Güven: {result['confidence']:.2%}")
+print(f"Olasılıklar: {result['probabilities']}")
+```
+
+**API Endpoints:**
+
+| Endpoint | Method | Açıklama |
+|----------|--------|----------|
+| `/` | GET | API bilgisi |
+| `/health` | GET | Sağlık kontrolü |
+| `/predict` | POST | MRI sınıflandırma (file upload) |
+| `/classes` | GET | Sınıf listesi ve açıklamaları |
+| `/docs` | GET | Swagger UI dokümantasyonu |
+
+### 3. Python Library Kullanımı (Programmatic)
 
 ```python
 from utils import load_model, predict_image
@@ -117,7 +166,7 @@ print(f"Güven: {result['confidence']:.2%}")
 print(f"Olasılıklar: {result['probabilities']}")
 ```
 
-### Grad-CAM Görselleştirme
+### 4. Grad-CAM Görselleştirme
 
 ```python
 from utils import generate_gradcam, overlay_gradcam, visualize_gradcam
@@ -145,7 +194,8 @@ plt.show()
 
 ```
 MRI_classification/
-├── app.py                  # Streamlit ana uygulama
+├── app.py                  # Streamlit web UI
+├── api.py                  # FastAPI REST API
 ├── config.py               # Konfigürasyon ve sabitler
 ├── requirements.txt        # Python bağımlılıkları
 ├── README.md              # Proje dokümantasyonu
