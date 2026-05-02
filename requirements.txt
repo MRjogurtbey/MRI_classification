@@ -28,7 +28,3 @@ requests>=2.31.0
 
 # App
 streamlit>=1.35.0
-
-# LLM backends (optional — at least one needed for AI reports)
-groq>=0.9.0
-google-generativeai>=0.7.0

@@ -23,7 +23,6 @@ from config import (
     MODEL_PATH, MODELS_DIR, OUTPUTS_DIR, PAGE_ICON, PAGE_TITLE,
     PLOT_HEIGHT, SHOW_GRADCAM,
 )
-from ollama_report import generate_report
 from utils import (
     generate_gradcam,
     load_h5_image,
@@ -126,17 +125,6 @@ with st.sidebar:
     show_gradcam = st.checkbox("Grad-CAM Görselleştirme", value=SHOW_GRADCAM)
     use_tta = st.checkbox("Test-Time Augmentation (TTA)", value=False,
                           help="5 augmentation ile tahmin yap, daha doğru ama yavaş")
-
-    st.markdown("---")
-    st.markdown("## 🤖 AI Raporu")
-    use_ollama = st.toggle("AI Raporu Üret", value=True)
-    report_backend = st.selectbox(
-        "Backend",
-        ["auto", "groq", "gemini", "ollama"],
-        help="auto: Ollama → Groq → Gemini sırasıyla dener",
-    )
-    ollama_model = st.selectbox("Ollama Modeli", ["llama3", "mistral", "llama3.2", "gemma2"])
-    st.caption("Yerel: `ollama serve` | Bulut: Secrets'a GROQ_API_KEY veya GEMINI_API_KEY ekle")
 
     st.markdown("---")
     st.markdown("## 🔬 Aktif Öğrenme")
@@ -275,19 +263,6 @@ if uploaded_file is not None and show_gradcam and "cam_map" in st.session_state:
                      use_container_width=True)
         except Exception as e:
             st.error(f"Overlay hatası: {e}")
-
-# ── Ollama AI Report ──────────────────────────────────────────────────────────
-if "predicted_class" in st.session_state and use_ollama:
-    st.markdown("---")
-    st.markdown("### 📋 Yapay Zeka Ön Raporu")
-    with st.spinner("AI raporu hazırlanıyor..."):
-        report = generate_report(
-            st.session_state.predicted_class.lower(),
-            ollama_model=ollama_model,
-            backend=report_backend,
-        )
-    st.info(report)
-    st.caption("⚠️ Bu rapor ön değerlendirmedir. Kesin tanı için radyolog onayı şarttır.")
 
 # ── Active Learning ───────────────────────────────────────────────────────────
 if "predicted_class" in st.session_state and st.session_state.confidence < ACTIVE_LEARNING_THRESHOLD:
