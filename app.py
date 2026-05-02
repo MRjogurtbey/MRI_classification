@@ -218,6 +218,13 @@ with col2:
     st.markdown("### 🔍 Analiz Sonuçları")
     
     if uploaded_file is not None:
+        # Yeni dosya yüklendiğinde eski sonuçları temizle
+        if 'last_uploaded_file' not in st.session_state or st.session_state.last_uploaded_file != uploaded_file.name:
+            st.session_state.last_uploaded_file = uploaded_file.name
+            # Eski analiz sonuçlarını temizle
+            for key in ['predictions', 'predicted_class', 'confidence', 'inference_time', 'cam_map']:
+                if key in st.session_state:
+                    del st.session_state[key]
         # Analiz butonu
         if st.button("🚀 Analizi Başlat", type="primary"):
             # Model kontrolü
