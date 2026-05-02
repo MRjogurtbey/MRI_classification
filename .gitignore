@@ -37,9 +37,14 @@ models/*.pth
 # Data
 data/
 dataset/
+Training/
+Testing/
 *.h5
 *.nii
 *.nii.gz
+*.jpg
+*.png
+*.jpeg
 
 # IDE
 .vscode/

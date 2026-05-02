@@ -8,11 +8,14 @@ from pathlib import Path
 # Proje yolları
 PROJECT_ROOT = Path(__file__).parent
 MODELS_DIR = PROJECT_ROOT / "models"
+CHECKPOINTS_DIR = PROJECT_ROOT / "checkpoints"
 DATA_DIR = PROJECT_ROOT / "data"
+TRAINING_DIR = PROJECT_ROOT / "Training"
+TESTING_DIR = PROJECT_ROOT / "Testing"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 
 # Model ayarları
-MODEL_PATH = MODELS_DIR / "best_model.pt"  # Varsayılan model
+MODEL_PATH = MODELS_DIR / "best_model.pth"  # Varsayılan model
 IMAGE_SIZE = (224, 224)  # Görüntü boyutu (H, W)
 BATCH_SIZE = 32
 
