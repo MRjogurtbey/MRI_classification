@@ -272,11 +272,11 @@ if uploaded_file is not None and show_gradcam and "cam_map" in st.session_state:
         st.image(img_display, use_container_width=True)
             
     with c2:
-        st.markdown("#### Heatmap")
+        st.markdown("#### Overlay")
         st.image(heatmap_resized, use_container_width=True, clamp=True)
         
     with c3:
-        st.markdown("#### Overlay (Corrected)")
+        st.markdown("#### Heatmap")
         try:
             # Orijinal resmi NumPy array'e çevir (H, W, C)
             img_arr = np.array(img_display)
