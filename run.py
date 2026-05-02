@@ -10,7 +10,7 @@ from pathlib import Path
 def main():
     """Streamlit uygulamasını başlat"""
     print("=" * 60)
-    print("🧠 NeuroBridge AI - MRI Sınıflandırma Sistemi")
+    print("NeuroBridge AI - MRI Siniflandirma Sistemi")
     print("SuHack 2026 - NeuroBridge AI Hackathon")
     print("=" * 60)
     print()
@@ -20,14 +20,14 @@ def main():
     app_path = project_root / "app.py"
     
     if not app_path.exists():
-        print("❌ app.py bulunamadı!")
+        print("[HATA] app.py bulunamadi!")
         sys.exit(1)
     
-    print("🚀 Streamlit uygulaması başlatılıyor...")
-    print(f"📂 Konum: {app_path}")
+    print("[BASLATILIYOR] Streamlit uygulamasi baslatiliyor...")
+    print(f"[KONUM] {app_path}")
     print()
-    print("💡 Tarayıcınız otomatik olarak açılacaktır.")
-    print("💡 Kapatmak için Ctrl+C tuşlarına basın.")
+    print("[BILGI] Tarayiciniz otomatik olarak acilacaktir.")
+    print("[BILGI] Kapatmak icin Ctrl+C tushlarina basin.")
     print()
     print("-" * 60)
     
@@ -42,14 +42,14 @@ def main():
             "--theme.base=light"
         ], check=True)
     except KeyboardInterrupt:
-        print("\n\n👋 Uygulama kapatıldı.")
+        print("\n\n[KAPATILDI] Uygulama kapatildi.")
     except subprocess.CalledProcessError as e:
-        print(f"\n❌ Hata: {e}")
-        print("\n💡 Streamlit kurulu mu? Kurmak için:")
+        print(f"\n[HATA] {e}")
+        print("\n[BILGI] Streamlit kurulu mu? Kurmak icin:")
         print("   pip install streamlit")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Beklenmeyen hata: {e}")
+        print(f"\n[HATA] Beklenmeyen hata: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
