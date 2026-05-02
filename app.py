@@ -76,7 +76,7 @@ def load_mri_model_v4(model_path: str):
             image_size=IMAGE_SIZE,
         )
     except Exception as e:
-        st.error(f"Model yüklenirken hata: {e}")
+        st.error(f"Model Loading Error: {e}")
         return None
 
 
@@ -108,7 +108,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("## ⚙️ Model Ayarları")
+    st.markdown("## ⚙️ Model Settings")
     model_files = (
         list(CHECKPOINTS_DIR.glob("*.pt")) + list(CHECKPOINTS_DIR.glob("*.pth")) +
         list(MODELS_DIR.glob("*.pt")) + list(MODELS_DIR.glob("*.pth"))
@@ -118,16 +118,17 @@ with st.sidebar:
         selected_model = st.selectbox("Model Seç", list(model_file_map.keys()))
         model_path = model_file_map[selected_model]
     else:
-        st.warning("⚠️ Model dosyası bulunamadı!")
+        st.warning("⚠️ Model File Not Found!")
         model_path = MODEL_PATH
 
-    confidence_threshold = st.slider("Güven Eşiği (%)", 0, 100, DEFAULT_CONFIDENCE_THRESHOLD)
-    show_gradcam = st.checkbox("Grad-CAM Görselleştirme", value=SHOW_GRADCAM)
+    confidence_threshold = st.slider("Trust Level (%)", 0, 100, DEFAULT_CONFIDENCE_THRESHOLD)
+    show_gradcam = st.checkbox("Grad-CAM 
+visualization", value=SHOW_GRADCAM)
     use_tta = st.checkbox("Test-Time Augmentation (TTA)", value=False,
                           help="5 augmentation ile tahmin yap, daha doğru ama yavaş")
 
     st.markdown("---")
-    st.markdown("## 🔬 Aktif Öğrenme")
+    st.markdown("## 🔬 Active Learning")
     st.info(f"Güven < %{ACTIVE_LEARNING_THRESHOLD} ise doktor düzeltmesi istenir ve vaka loglanır.")
     if ACTIVE_LEARNING_LOG.exists():
         try:
@@ -137,7 +138,7 @@ with st.sidebar:
             pass
 
     st.markdown("---")
-    if st.button("🔄 Modeli Yükle/Yenile"):
+    if st.button("🔄 Load/Switch Model"):
         with st.spinner("Model yükleniyor..."):
             st.session_state.model = load_mri_model_v4(str(model_path))
             if st.session_state.model is not None:
@@ -147,14 +148,14 @@ with st.sidebar:
                 st.session_state.model_loaded = False
 
 # ── Main header ───────────────────────────────────────────────────────────────
-st.markdown('<p class="main-header">🧠 NeuroBridge AI - MRI Sınıflandırma</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">Beyin MRI Görüntülerinde Tümör Tespiti</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header">🧠 NeuroBridge AI - MRI Classification</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-header">Brain MRI Image Tumor Detection</p>', unsafe_allow_html=True)
 
 # ── Upload + Results ──────────────────────────────────────────────────────────
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("### 📤 MRI Görüntüsü Yükle")
+    st.markdown("### 📤 Load MRI Image ")
     uploaded_file = st.file_uploader(
         "JPG, PNG, JPEG veya H5 seçin",
         type=["jpg", "jpeg", "png", "h5"],
