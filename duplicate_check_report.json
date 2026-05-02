@@ -1,11 +1,11 @@
 {
   "current_dataset": {
-    "path": "C:\\Users\\ASUS\\MRI_classification",
+    "path": "<project_root>",
     "total_files": 7200,
     "unique_hashes": 7013
   },
   "new_dataset": {
-    "path": "C:\\Users\\ASUS\\Desktop\\Hackathon\\Brain Tumor MRI Dataset (Glioma, Meningioma, Pitui\\extracted",
+    "path": "<external_dataset_path>",
     "total_files": 12064,
     "unique_hashes": 10892
   },

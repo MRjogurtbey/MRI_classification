@@ -59,7 +59,7 @@ Beyin MRI görüntülerinde tümör tespiti ve sınıflandırma sistemi. Derin �
 
 ### Adım 1: Repository'yi klonlayın
 ```bash
-git clone https://github.com/yourusername/MRI_classification.git
+git clone https://github.com/MRjogurtbey/MRI_classification.git
 cd MRI_classification
 ```
 
@@ -533,8 +533,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 ## 📧 İletişim
 
 - **Proje**: SuHack 2026 - NeuroBridge AI
-- **Email**: your.email@example.com
-- **GitHub**: [@yourusername](https://github.com/yourusername)
+- **GitHub**: [@MRjogurtbey](https://github.com/MRjogurtbey)
 
 ## 🙏 Teşekkürler
 
