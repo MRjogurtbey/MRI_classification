@@ -60,13 +60,6 @@ st.markdown("""
         text-align: center;
         margin-bottom: 3rem;
     }
-    .result-box {
-        padding: 1.5rem;
-        border-radius: 10px;
-        background-color: rgba(240, 242, 246, 0.5);
-        border: 1px solid rgba(49, 51, 63, 0.1);
-        margin: 1rem 0;
-    }
     .stButton>button {
         width: 100%;
         background-color: #1f77b4;
@@ -111,9 +104,15 @@ def load_mri_model_v3(model_path: str):
 
 # Sidebar
 with st.sidebar:
-    st.image("https://via.placeholder.com/300x100/1f77b4/ffffff?text=NeuroBridge+AI", 
-             use_container_width=True)
-    st.markdown("## 🧠 Hakkında")
+    # Logo/Banner
+    st.markdown("""
+    <div style='text-align: center; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; margin-bottom: 1rem;'>
+        <h1 style='color: white; margin: 0; font-size: 1.8rem;'>🧠 NeuroBridge AI</h1>
+        <p style='color: #f0f0f0; margin: 0; font-size: 0.9rem;'>MRI Classification System</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("## 📋 Hakkında")
     st.info("""
     **SuHack 2026 - NeuroBridge AI**
     
@@ -196,14 +195,13 @@ with col1:
     )
     
     if uploaded_file is not None:
-        # Görüntüyü göster ve session state'e kaydet
+        # Görüntüyü göster
         try:
             if uploaded_file.name.endswith('.h5'):
                 st.warning("H5 dosyası yüklendi. İşleniyor...")
                 # H5 dosyası işleme kodu buraya eklenecek
             else:
                 image = Image.open(uploaded_file)
-                st.session_state.uploaded_image = image  # Session state'e kaydet
                 st.image(image, caption="Yüklenen MRI Görüntüsü", use_container_width=True)
                 
                 # Görüntü bilgileri
@@ -289,31 +287,26 @@ with col2:
             predicted_class = st.session_state.predicted_class
             confidence = st.session_state.confidence
             
-            # Sonuç kutusu
-            st.markdown('<div class="result-box">', unsafe_allow_html=True)
-                
             # Tahmin edilen sınıf
             if confidence >= confidence_threshold:
                 st.success(f"""
-                ### ✅ Tahmin: **{predicted_class}**
-                **Güven Oranı:** {confidence:.2f}%
-                
-                **Açıklama:** {CLASS_DESCRIPTIONS[predicted_class]}
-                """)
+### ✅ Tahmin: **{predicted_class}**
+**Güven Oranı:** {confidence:.2f}%
+
+**Açıklama:** {CLASS_DESCRIPTIONS[predicted_class]}
+""")
             else:
                 st.warning(f"""
-                ### ⚠️ Düşük Güven Seviyesi
-                **Tahmin:** {predicted_class} ({confidence:.2f}%)
-                
-                Güven seviyesi belirlenen eşiğin altında. 
-                Lütfen uzman değerlendirmesi yapınız.
-                """)
+### ⚠️ Düşük Güven Seviyesi
+**Tahmin:** {predicted_class} ({confidence:.2f}%)
+
+Güven seviyesi belirlenen eşiğin altında. 
+Lütfen uzman değerlendirmesi yapınız.
+""")
             
             # İşlem süresi
             if 'inference_time' in st.session_state:
                 st.info(f"⏱️ **İşlem Süresi:** {st.session_state.inference_time:.3f} saniye")
-            
-            st.markdown('</div>', unsafe_allow_html=True)
                 
             # Olasılık dağılımı grafiği
             st.markdown("### 📊 Olasılık Dağılımı")
@@ -368,8 +361,8 @@ if uploaded_file is not None and show_gradcam and 'cam_map' in st.session_state:
     
     with col1:
         st.markdown("#### Orijinal Görüntü")
-        if not uploaded_file.name.endswith('.h5') and 'uploaded_image' in st.session_state:
-            st.image(st.session_state.uploaded_image, use_container_width=True)
+        if not uploaded_file.name.endswith('.h5'):
+            st.image(image, use_container_width=True)
     
     with col2:
         st.markdown("#### Grad-CAM Haritası")
@@ -379,8 +372,8 @@ if uploaded_file is not None and show_gradcam and 'cam_map' in st.session_state:
     with col3:
         st.markdown("#### Üst Üste Bindirme")
         try:
-            if not uploaded_file.name.endswith('.h5') and 'uploaded_image' in st.session_state:
-                image_array = np.array(st.session_state.uploaded_image.resize(IMAGE_SIZE))
+            if not uploaded_file.name.endswith('.h5'):
+                image_array = np.array(image.resize(IMAGE_SIZE))
                 overlayed = overlay_gradcam(cam_map, image_array, alpha=GRADCAM_ALPHA)
                 st.image(overlayed, use_container_width=True)
         except Exception as e:
