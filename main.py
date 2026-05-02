@@ -13,10 +13,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description="MRI Brain Tumor Classification")
     parser.add_argument("--mode", choices=["train", "eval", "both"], default="both")
     parser.add_argument("--epochs", type=int, default=15)
-    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--num_workers", type=int, default=0)
     parser.add_argument("--checkpoint", type=str, default="checkpoints/best_model.pth")
     parser.add_argument("--no_pretrain", action="store_true")
+    parser.add_argument("--train_dir", type=str, default=None, help="Override training data path (e.g. /content/Training)")
+    parser.add_argument("--test_dir", type=str, default=None, help="Override test data path (e.g. /content/Testing)")
     return parser.parse_args()
 
 
@@ -24,8 +26,8 @@ def main():
     args = parse_args()
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    TRAIN_DIR = os.path.join(BASE_DIR, "Training")
-    TEST_DIR = os.path.join(BASE_DIR, "Testing")
+    TRAIN_DIR = args.train_dir or os.path.join(BASE_DIR, "Training")
+    TEST_DIR = args.test_dir or os.path.join(BASE_DIR, "Testing")
     SAVE_DIR = os.path.join(BASE_DIR, "checkpoints")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

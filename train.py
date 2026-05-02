@@ -21,7 +21,7 @@ def _run_epoch(model, loader, criterion, optimizer, device, training: bool, scal
             if training:
                 optimizer.zero_grad()
 
-            with torch.cuda.amp.autocast(enabled=use_amp):
+            with torch.amp.autocast("cuda", enabled=use_amp):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
 
@@ -52,7 +52,7 @@ def train(
     os.makedirs(save_dir, exist_ok=True)
 
     use_amp = device.type == "cuda"
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     print(f"Mixed Precision (AMP): {'enabled' if use_amp else 'disabled'}")
 
     criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
