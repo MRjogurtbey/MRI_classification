@@ -20,12 +20,14 @@ IMAGE_SIZE = (224, 224)  # Görüntü boyutu (H, W)
 BATCH_SIZE = 32
 
 # Sınıf isimleri ve renkleri
-CLASS_NAMES = ["Glioma", "Meningioma", "Pituitary", "NoTumor"]
+# CRITICAL: Sıralama model training sırasıyla AYNI OLMALI (alphabetical order)
+# Training klasör sırası: glioma, meningioma, notumor, pituitary
+CLASS_NAMES = ["Glioma", "Meningioma", "NoTumor", "Pituitary"]
 CLASS_COLORS = {
     "Glioma": "#ff6b6b",
     "Meningioma": "#ffd93d",
-    "Pituitary": "#6bcf7f",
-    "NoTumor": "#4d96ff"
+    "NoTumor": "#4d96ff",
+    "Pituitary": "#6bcf7f"
 }
 
 CLASS_DESCRIPTIONS = {
@@ -33,10 +35,10 @@ CLASS_DESCRIPTIONS = {
               "En yaygın malign beyin tümörü tipidir.",
     "Meningioma": "Beyin zarlarından (meninges) kaynaklanan genellikle iyi huylu tümör. "
                   "Yavaş büyüme gösterir.",
-    "Pituitary": "Hipofiz bezinde gelişen tümör. "
-                 "Hormon üretimini etkileyebilir.",
     "NoTumor": "MRI taramasında tümör tespit edilmedi. "
-               "Normal beyin görüntüsü."
+               "Normal beyin görüntüsü.",
+    "Pituitary": "Hipofiz bezinde gelişen tümör. "
+                 "Hormon üretimini etkileyebilir."
 }
 
 # Cihaz ayarları
