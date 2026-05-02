@@ -101,12 +101,12 @@ class ModelInference:
         model = models.resnet18(weights=None)
         num_classes = len(self.class_names)
         
-        # FC layer: Sequential(Linear(512, 256), ReLU, Dropout, Linear(256, 4))
+        # FC layer: Sequential(Linear(512, 512), ReLU, Dropout, Linear(512, 4))
         model.fc = nn.Sequential(
-            nn.Linear(512, 256),
+            nn.Linear(512, 512),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.Linear(256, num_classes)
+            nn.Linear(512, num_classes)
         )
         
         return model

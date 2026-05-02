@@ -79,8 +79,8 @@ st.markdown("""
 
 # Model yükleme fonksiyonu
 @st.cache_resource(show_spinner="Model yükleniyor...")
-def load_mri_model_v2(model_path: str):
-    """Model'i yükle ve cache'le (ResNet18 version)"""
+def load_mri_model_v3(model_path: str):
+    """Model'i yükle ve cache'le (ResNet18 with correct FC dimensions)"""
     try:
         if not Path(model_path).exists():
             st.warning(f"⚠️ Model dosyası bulunamadı: {model_path}")
@@ -168,7 +168,7 @@ with st.sidebar:
     # Model yükle butonu
     if st.button("🔄 Modeli Yükle/Yenile"):
         with st.spinner("Model yükleniyor..."):
-            st.session_state.model = load_mri_model_v2(str(model_path))
+            st.session_state.model = load_mri_model_v3(str(model_path))
             if st.session_state.model is not None:
                 st.session_state.model_loaded = True
                 st.success("✅ Model başarıyla yüklendi!")
