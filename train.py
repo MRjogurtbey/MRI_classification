@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 
+from focal_loss import FocalLoss
+
 
 def _run_epoch(model, loader, criterion, optimizer, device, training: bool, scaler):
     model.train() if training else model.eval()
@@ -48,6 +50,8 @@ def train(
     device,
     class_weights,
     save_dir: str = "checkpoints",
+    use_focal_loss: bool = True,
+    focal_gamma: float = 2.0,
 ):
     os.makedirs(save_dir, exist_ok=True)
 
@@ -55,7 +59,14 @@ def train(
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
     print(f"Mixed Precision (AMP): {'enabled' if use_amp else 'disabled'}")
 
-    criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
+    # Use Focal Loss for better handling of hard examples (especially Glioma)
+    if use_focal_loss:
+        criterion = FocalLoss(alpha=class_weights.to(device), gamma=focal_gamma)
+        print(f"Loss Function: Focal Loss (gamma={focal_gamma})")
+    else:
+        criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
+        print(f"Loss Function: Cross Entropy Loss")
+    
     optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="max", factor=0.5, patience=3

@@ -32,7 +32,7 @@ def main():
     print(f"Device: {device}")
 
     print("\n[Data]")
-    train_loader, test_loader, class_names, class_weights = get_dataloaders(
+    train_loader, val_loader, test_loader, class_names, class_weights = get_dataloaders(
         TRAIN_DIR, TEST_DIR,
         batch_size=args.batch_size,
         num_workers=args.num_workers,
@@ -47,7 +47,7 @@ def main():
         history = train(
             model=model,
             train_loader=train_loader,
-            val_loader=test_loader,
+            val_loader=val_loader,  # Use validation set for model selection
             num_epochs=args.epochs,
             device=device,
             class_weights=class_weights,
@@ -63,6 +63,11 @@ def main():
         else:
             print(f"\n[Eval] Checkpoint not found ({ckpt}), using current weights.")
 
+        print("\n[Final Test Evaluation]")
+        print("=" * 55)
+        print("NOTE: This is the FINAL test set evaluation.")
+        print("This data was not used during training or model selection.")
+        print("=" * 55)
         evaluate(model, test_loader, device, class_names, save_dir=BASE_DIR)
 
 

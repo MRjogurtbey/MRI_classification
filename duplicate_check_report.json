@@ -1,0 +1,20 @@
+{
+  "current_dataset": {
+    "path": "C:\\Users\\ASUS\\MRI_classification",
+    "total_files": 7200,
+    "unique_hashes": 7013
+  },
+  "new_dataset": {
+    "path": "C:\\Users\\ASUS\\Desktop\\Hackathon\\Brain Tumor MRI Dataset (Glioma, Meningioma, Pitui\\extracted",
+    "total_files": 12064,
+    "unique_hashes": 10892
+  },
+  "duplicates_between": {
+    "count": 4965,
+    "percentage": 45.583914799853105
+  },
+  "duplicates_within_new": {
+    "count": 1026
+  },
+  "recommendation": "DO_NOT_USE"
+}

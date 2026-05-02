@@ -1,0 +1,30 @@
+{
+  "operation": "extract_unique_files",
+  "source": "C:\\Users\\ASUS\\Desktop\\Hackathon\\Brain Tumor MRI Dataset (Glioma, Meningioma, Pitui\\extracted",
+  "destination": "C:\\Users\\ASUS\\MRI_classification",
+  "current_dataset_size": 7013,
+  "new_dataset_size": 10892,
+  "extracted_files": {
+    "total_copied": 5927,
+    "train": 3857,
+    "test": 2070,
+    "class_counts": {
+      "glioma": {
+        "train": 1484,
+        "test": 734
+      },
+      "meningioma": {
+        "train": 598,
+        "test": 435
+      },
+      "notumor": {
+        "train": 836,
+        "test": 460
+      },
+      "pituitary": {
+        "train": 939,
+        "test": 441
+      }
+    }
+  }
+}

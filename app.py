@@ -165,6 +165,12 @@ with st.sidebar:
         help="Görüntü kontrastını artır"
     )
     
+    use_tta = st.checkbox(
+        "Test-Time Augmentation (TTA)",
+        value=False,
+        help="5 farklı augmentation ile tahmin yap ve ortalamasını al. Daha yüksek doğruluk ama daha yavaş."
+    )
+    
     # Model yükle butonu
     if st.button("🔄 Modeli Yükle/Yenile"):
         with st.spinner("Model yükleniyor..."):
@@ -253,11 +259,18 @@ with col2:
                             # Normal görüntü dosyası
                             image_for_prediction = image
                         
-                        # Tahmin yap
-                        result = st.session_state.model.predict(
-                            image_for_prediction,
-                            return_probabilities=True
-                        )
+                        # Tahmin yap (TTA veya normal)
+                        if use_tta:
+                            result = st.session_state.model.predict_with_tta(
+                                image_for_prediction,
+                                num_augmentations=5,
+                                return_probabilities=True
+                            )
+                        else:
+                            result = st.session_state.model.predict(
+                                image_for_prediction,
+                                return_probabilities=True
+                            )
                         
                         predictions = result['probabilities']
                         predicted_class = result['predicted_class']

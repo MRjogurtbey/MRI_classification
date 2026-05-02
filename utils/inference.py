@@ -164,6 +164,93 @@ class ModelInference:
         
         return result
     
+    @torch.no_grad()
+    def predict_with_tta(
+        self,
+        image: Union[str, Image.Image, np.ndarray],
+        num_augmentations: int = 5,
+        return_probabilities: bool = True
+    ) -> Dict[str, Union[str, float, Dict[str, float]]]:
+        """
+        Test-Time Augmentation (TTA) ile tahmin yapar.
+        Birden fazla augmented version'ın ortalamasını alır.
+        
+        TTA, recall'u artırmak için özellikle yararlıdır çünkü:
+        - Farklı perspektiflerden görüntüyü değerlendirir
+        - Model belirsizliğini azaltır
+        - Hard örneklerde (örn. Glioma) daha iyi performans sağlar
+        
+        Args:
+            image: Görüntü (dosya yolu, PIL Image, veya NumPy array)
+            num_augmentations: Augmentation sayısı (default: 5)
+            return_probabilities: Tüm sınıflar için olasılık dön
+            
+        Returns:
+            Dict: Ensemble tahmin sonuçları (TTA ortalaması)
+        """
+        self.model.eval()
+        
+        # Original image'i yükle
+        if isinstance(image, str):
+            pil_image = Image.open(image).convert('RGB')
+        elif isinstance(image, np.ndarray):
+            pil_image = Image.fromarray(image.astype('uint8'), 'RGB')
+        else:
+            pil_image = image
+        
+        # TTA için augmentation'lar
+        augmentations = [
+            lambda x: x,  # 1. Original
+            lambda x: x.transpose(Image.FLIP_LEFT_RIGHT),  # 2. Horizontal flip
+            lambda x: x.transpose(Image.FLIP_TOP_BOTTOM),  # 3. Vertical flip
+            lambda x: x.rotate(15, fillcolor=(0, 0, 0)),  # 4. Rotate +15°
+            lambda x: x.rotate(-15, fillcolor=(0, 0, 0)),  # 5. Rotate -15°
+        ]
+        
+        # Sadece istenen sayıda augmentation kullan
+        augmentations = augmentations[:num_augmentations]
+        
+        # Her augmentation için tahmin yap
+        all_probabilities = []
+        
+        for aug_fn in augmentations:
+            # Augmentation uygula
+            augmented_image = aug_fn(pil_image)
+            
+            # Preprocess ve tahmin
+            input_tensor = preprocess_image(augmented_image, self.image_size)
+            input_tensor = input_tensor.to(self.device)
+            
+            outputs = self.model(input_tensor)
+            probabilities = F.softmax(outputs, dim=1)
+            all_probabilities.append(probabilities)
+        
+        # Tüm augmentation'ların ortalamasını al (ensemble)
+        ensemble_probs = torch.mean(torch.stack(all_probabilities), dim=0)
+        
+        # En yüksek olasılığı bul
+        confidence, predicted_idx = torch.max(ensemble_probs, 1)
+        predicted_class = self.class_names[predicted_idx.item()]
+        confidence_value = confidence.item()
+        
+        result = {
+            'predicted_class': predicted_class,
+            'predicted_index': predicted_idx.item(),
+            'confidence': confidence_value,
+            'tta_used': True,
+            'num_augmentations': num_augmentations
+        }
+        
+        # Tüm sınıf olasılıkları
+        if return_probabilities:
+            probs_dict = {
+                name: prob.item() 
+                for name, prob in zip(self.class_names, ensemble_probs[0])
+            }
+            result['probabilities'] = probs_dict
+        
+        return result
+    
     def predict_batch(
         self,
         images: list,
