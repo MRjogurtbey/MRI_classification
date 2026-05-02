@@ -1,7 +1,7 @@
 """
 NeuroBridge AI Hackathon - SuHack 2026
-MRI Sınıflandırma Sistemi - Streamlit Arayüzü
-4 Sınıf: Glioma, Meningioma, Pituitary, NoTumor
+MRI Classification System - Streamlit Interface
+4 Classes: Glioma, Meningioma, Pituitary, NoTumor
 """
 
 import json
@@ -57,17 +57,17 @@ st.markdown("""
 .main-header { font-size:3rem; font-weight:bold; color:#1f77b4; text-align:center; margin-bottom:2rem; }
 .sub-header  { font-size:1.5rem; color:#666; text-align:center; margin-bottom:3rem; }
 .stButton>button { width:100%; background-color:#1f77b4; color:white;
-                   font-size:1.2rem; padding:0.8rem; border-radius:10px; }
+                    font-size:1.2rem; padding:0.8rem; border-radius:10px; }
 </style>
 """, unsafe_allow_html=True)
 
 
 # ── Model cache ───────────────────────────────────────────────────────────────
-@st.cache_resource(show_spinner="Model yükleniyor...")
+@st.cache_resource(show_spinner="Loading model...")
 def load_mri_model_v4(model_path: str):
     try:
         if not Path(model_path).exists():
-            st.warning(f"Model bulunamadı: {model_path}")
+            st.warning(f"Model not found: {model_path}")
             return None
         return load_model(
             model_path=model_path,
@@ -115,35 +115,34 @@ with st.sidebar:
     )
     if model_files:
         model_file_map = {f.name: f for f in model_files}
-        selected_model = st.selectbox("Model Seç", list(model_file_map.keys()))
+        selected_model = st.selectbox("Select Model", list(model_file_map.keys()))
         model_path = model_file_map[selected_model]
     else:
         st.warning("⚠️ Model File Not Found!")
         model_path = MODEL_PATH
 
     confidence_threshold = st.slider("Trust Level (%)", 0, 100, DEFAULT_CONFIDENCE_THRESHOLD)
-    show_gradcam = st.checkbox("Grad-CAM 
-visualization", value=SHOW_GRADCAM)
+    show_gradcam = st.checkbox("Grad-CAM visualization", value=SHOW_GRADCAM)
     use_tta = st.checkbox("Test-Time Augmentation (TTA)", value=False,
-                          help="5 augmentation ile tahmin yap, daha doğru ama yavaş")
+                          help="Predict using 5 augmentations; more accurate but slower")
 
     st.markdown("---")
     st.markdown("## 🔬 Active Learning")
-    st.info(f"Güven < %{ACTIVE_LEARNING_THRESHOLD} ise doktor düzeltmesi istenir ve vaka loglanır.")
+    st.info(f"If Confidence < {ACTIVE_LEARNING_THRESHOLD}%, physician correction is requested and the case is logged.")
     if ACTIVE_LEARNING_LOG.exists():
         try:
             n = len(json.loads(ACTIVE_LEARNING_LOG.read_text()))
-            st.metric("Biriken düzeltme", n)
+            st.metric("Accumulated Corrections", n)
         except Exception:
             pass
 
     st.markdown("---")
     if st.button("🔄 Load/Switch Model"):
-        with st.spinner("Model yükleniyor..."):
+        with st.spinner("Loading model..."):
             st.session_state.model = load_mri_model_v4(str(model_path))
             if st.session_state.model is not None:
                 st.session_state.model_loaded = True
-                st.success("✅ Model başarıyla yüklendi!")
+                st.success("✅ Model loaded successfully!")
             else:
                 st.session_state.model_loaded = False
 
@@ -157,20 +156,20 @@ col1, col2 = st.columns([1, 1])
 with col1:
     st.markdown("### 📤 Load MRI Image ")
     uploaded_file = st.file_uploader(
-        "JPG, PNG, JPEG veya H5 seçin",
+        "Select JPG, PNG, JPEG or H5",
         type=["jpg", "jpeg", "png", "h5"],
     )
 
     if uploaded_file is not None:
         if uploaded_file.name.endswith(".h5"):
-            st.warning("H5 dosyası algılandı.")
+            st.warning("H5 file detected.")
         else:
             image = Image.open(uploaded_file)
-            st.image(image, caption="Yüklenen MRI", use_container_width=True)
-            st.info(f"Boyut: {image.size[0]}×{image.size[1]} | Mod: {image.mode}")
+            st.image(image, caption="Uploaded MRI", use_container_width=True)
+            st.info(f"Size: {image.size[0]}×{image.size[1]} | Mode: {image.mode}")
 
 with col2:
-    st.markdown("### 🔍 Analiz Sonuçları")
+    st.markdown("### 🔍 Analysis Results")
 
     if uploaded_file is not None:
         # Reset state on new file
@@ -179,11 +178,11 @@ with col2:
             for k in ("predictions", "predicted_class", "confidence", "inference_time", "cam_map"):
                 st.session_state.pop(k, None)
 
-        if st.button("🚀 Analizi Başlat", type="primary"):
+        if st.button("🚀 Start Analysis", type="primary"):
             if not st.session_state.model_loaded:
-                st.warning("⚠️ Önce sol menüden modeli yükleyin!")
+                st.warning("⚠️ Please load the model from the sidebar first!")
             else:
-                with st.spinner("🔬 Analiz ediliyor..."):
+                with st.spinner("🔬 Analyzing..."):
                     try:
                         t0 = time.time()
                         img_input = (
@@ -206,14 +205,14 @@ with col2:
                                 )
                                 st.session_state.cam_map = cam_map
                             except Exception as e:
-                                logger.warning(f"Grad-CAM hatası: {e}")
+                                logger.warning(f"Grad-CAM error: {e}")
 
                         st.session_state.predictions = result["probabilities"]
                         st.session_state.predicted_class = result["predicted_class"]
                         st.session_state.confidence = result["confidence"] * 100
                         st.session_state.inference_time = time.time() - t0
                     except Exception as e:
-                        st.error(f"Hata: {e}")
+                        st.error(f"Error: {e}")
                         st.stop()
 
         # ── Show results ──────────────────────────────────────────────────────
@@ -225,10 +224,10 @@ with col2:
             if conf >= confidence_threshold:
                 st.success(f"### ✅ {pred_cls}  —  {conf:.1f}%\n\n{CLASS_DESCRIPTIONS[pred_cls]}")
             else:
-                st.warning(f"### ⚠️ {pred_cls}  —  {conf:.1f}%\n\nGüven düşük, uzman değerlendirmesi önerilir.")
+                st.warning(f"### ⚠️ {pred_cls}  —  {conf:.1f}%\n\nConfidence low, expert evaluation recommended.")
 
             if "inference_time" in st.session_state:
-                st.info(f"⏱️ {st.session_state.inference_time:.3f} sn")
+                st.info(f"⏱️ {st.session_state.inference_time:.3f} sec")
 
             colors = [CLASS_COLORS[n] for n in preds]
             fig = go.Figure(go.Bar(
@@ -238,50 +237,50 @@ with col2:
                 text=[f"{v*100:.1f}%" for v in preds.values()],
                 textposition="auto",
             ))
-            fig.update_layout(title="Sınıf Olasılıkları", yaxis_title="%",
+            fig.update_layout(title="Class Probabilities", yaxis_title="%",
                               yaxis_range=[0, 100], height=PLOT_HEIGHT, showlegend=False)
             st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("👈 Sol taraftan MRI görüntüsü yükleyin.")
+        st.info("👈 Upload an MRI image from the left panel.")
 
 # ── Grad-CAM ──────────────────────────────────────────────────────────────────
 if uploaded_file is not None and show_gradcam and "cam_map" in st.session_state:
     st.markdown("---")
-    st.markdown("### 🎯 Grad-CAM — Modelin Odak Noktası")
+    st.markdown("### 🎯 Grad-CAM — Model Focus Area")
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.markdown("#### Orijinal")
+        st.markdown("#### Original")
         if not uploaded_file.name.endswith(".h5"):
             st.image(image, use_container_width=True)
     with c2:
-        st.markdown("#### Isı Haritası")
+        st.markdown("#### Heatmap")
         st.image(st.session_state.cam_map, use_container_width=True, clamp=True)
     with c3:
-        st.markdown("#### Üst Üste")
+        st.markdown("#### Overlay")
         try:
             img_arr = np.array(image.resize(IMAGE_SIZE))
             st.image(overlay_gradcam(st.session_state.cam_map, img_arr, alpha=GRADCAM_ALPHA),
-                     use_container_width=True)
+                      use_container_width=True)
         except Exception as e:
-            st.error(f"Overlay hatası: {e}")
+            st.error(f"Overlay error: {e}")
 
 # ── Active Learning ───────────────────────────────────────────────────────────
 if "predicted_class" in st.session_state and st.session_state.confidence < ACTIVE_LEARNING_THRESHOLD:
     st.markdown("---")
-    st.markdown("### 🔬 Aktif Öğrenme — Düşük Güven Vakası")
+    st.markdown("### 🔬 Active Learning — Low Confidence Case")
     st.warning(
-        f"Model bu vakada yalnızca **{st.session_state.confidence:.1f}%** güven bildirdi. "
-        f"Doktor düzeltmesi bu vakayı yeniden eğitim setine ekler."
+        f"The model reported only **{st.session_state.confidence:.1f}%** confidence in this case. "
+        f"Physician correction will add this case to the re-training set."
     )
     with st.form("correction_form"):
         correct_class = st.selectbox(
-            "Doğru teşhis nedir?",
+            "What is the correct diagnosis?",
             CLASS_NAMES,
             index=CLASS_NAMES.index(st.session_state.predicted_class)
             if st.session_state.predicted_class in CLASS_NAMES else 0,
         )
-        notes = st.text_area("Notlar (isteğe bağlı)")
-        submitted = st.form_submit_button("✅ Düzeltmeyi Kaydet")
+        notes = st.text_area("Notes (optional)")
+        submitted = st.form_submit_button("✅ Save Correction")
         if submitted:
             n = save_correction(
                 image_name=uploaded_file.name if uploaded_file else "unknown",
@@ -289,13 +288,13 @@ if "predicted_class" in st.session_state and st.session_state.confidence < ACTIV
                 correct=correct_class,
                 confidence=st.session_state.confidence,
             )
-            st.success(f"Kaydedildi! Toplam {n} düzeltme birikti — yeniden eğitimde kullanılacak.")
+            st.success(f"Saved! Total {n} corrections accumulated — will be used for re-training.")
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("""
 <div style='text-align:center; color:#666;'>
   <p><strong>NeuroBridge AI — SuHack 2026</strong></p>
-  <p>⚠️ Klinik karar vermek için uzman doktor değerlendirmesi şarttır.</p>
+  <p>⚠️ Expert physician evaluation is mandatory for clinical decision-making.</p>
 </div>
 """, unsafe_allow_html=True)
