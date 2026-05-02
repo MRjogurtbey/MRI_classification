@@ -14,8 +14,19 @@ TRAINING_DIR = PROJECT_ROOT / "Training"
 TESTING_DIR = PROJECT_ROOT / "Testing"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 
-# Model ayarları
-MODEL_PATH = MODELS_DIR / "best_model.pth"  # Varsayılan model
+# Model ayarları — checkpoints/ önce, yoksa models/ kontrol edilir
+def _find_model() -> Path:
+    candidates = [
+        CHECKPOINTS_DIR / "best_model.pth",
+        MODELS_DIR / "best_model.pth",
+        PROJECT_ROOT / "best_model.pth",
+    ]
+    for p in candidates:
+        if p.exists():
+            return p
+    return CHECKPOINTS_DIR / "best_model.pth"  # fallback (hata mesajı için)
+
+MODEL_PATH = _find_model()
 IMAGE_SIZE = (224, 224)  # Görüntü boyutu (H, W)
 BATCH_SIZE = 32
 

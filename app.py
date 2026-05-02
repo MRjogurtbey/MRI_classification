@@ -17,7 +17,7 @@ import torch
 from PIL import Image
 
 from config import (
-    CLASS_COLORS, CLASS_DESCRIPTIONS, CLASS_NAMES,
+    CHECKPOINTS_DIR, CLASS_COLORS, CLASS_DESCRIPTIONS, CLASS_NAMES,
     DEFAULT_CONFIDENCE_THRESHOLD, DEVICE_AUTO, GRADCAM_ALPHA,
     H5_DATASET_NAME, IMAGE_SIZE, LAYOUT, LOG_LEVEL,
     MODEL_PATH, MODELS_DIR, OUTPUTS_DIR, PAGE_ICON, PAGE_TITLE,
@@ -110,7 +110,10 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.markdown("## ⚙️ Model Ayarları")
-    model_files = list(MODELS_DIR.glob("*.pt")) + list(MODELS_DIR.glob("*.pth"))
+    model_files = (
+        list(CHECKPOINTS_DIR.glob("*.pt")) + list(CHECKPOINTS_DIR.glob("*.pth")) +
+        list(MODELS_DIR.glob("*.pt")) + list(MODELS_DIR.glob("*.pth"))
+    )
     if model_files:
         selected_model = st.selectbox("Model Seç", [f.name for f in model_files])
         model_path = MODELS_DIR / selected_model
