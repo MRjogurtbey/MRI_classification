@@ -56,7 +56,7 @@ def train(
     print(f"Mixed Precision (AMP): {'enabled' if use_amp else 'disabled'}")
 
     criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
-    optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="max", factor=0.5, patience=3
     )

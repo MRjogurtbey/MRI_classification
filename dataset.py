@@ -13,7 +13,7 @@ def get_transforms(train: bool) -> transforms.Compose:
     )
     if train:
         return transforms.Compose([
-            transforms.Resize((224, 224)),
+            transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(p=0.1),
             transforms.RandomRotation(15),

@@ -14,7 +14,7 @@ def get_model(num_classes: int = 4, pretrained: bool = True) -> nn.Module:
     backbone.fc = nn.Sequential(
         nn.Linear(in_features, 512),
         nn.ReLU(inplace=True),
-        nn.Dropout(p=0.5),
+        nn.Dropout(p=0.6),
         nn.Linear(512, num_classes),
     )
 

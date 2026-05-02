@@ -88,7 +88,7 @@ def predict_image(
 def _cli():
     parser = argparse.ArgumentParser(description="MRI Inference — single image prediction")
     parser.add_argument("image", help="Path to MRI image")
-    parser.add_argument("--checkpoint", default="checkpoints/best_model.pth")
+    parser.add_argument("--checkpoint", default="/content/drive/MyDrive/SuHack2026/checkpoints/best_model.pth")
     parser.add_argument("--no_gradcam", action="store_true")
     parser.add_argument("--no_report", action="store_true")
     parser.add_argument("--ollama_model", default="llama3")
