@@ -36,7 +36,7 @@ logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
 
 ACTIVE_LEARNING_LOG = OUTPUTS_DIR / "active_learning_corrections.json"
-ACTIVE_LEARNING_THRESHOLD = 55  # % — below this triggers doctor review
+ACTIVE_LEARNING_THRESHOLD = 90  # % — below this triggers doctor review
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
