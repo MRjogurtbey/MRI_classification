@@ -115,8 +115,9 @@ with st.sidebar:
         list(MODELS_DIR.glob("*.pt")) + list(MODELS_DIR.glob("*.pth"))
     )
     if model_files:
-        selected_model = st.selectbox("Model Seç", [f.name for f in model_files])
-        model_path = MODELS_DIR / selected_model
+        model_file_map = {f.name: f for f in model_files}
+        selected_model = st.selectbox("Model Seç", list(model_file_map.keys()))
+        model_path = model_file_map[selected_model]
     else:
         st.warning("⚠️ Model dosyası bulunamadı!")
         model_path = MODEL_PATH
