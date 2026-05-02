@@ -243,45 +243,65 @@ with col2:
     else:
         st.info("👈 Upload an MRI image from the left panel.")
 
-# ── Grad-CAM Visualization (Fixed Alignment) ──────────────────────────────────
+# ── Grad-CAM Visualization (Manual Axis Correction) ───────────────────────────
 if uploaded_file is not None and show_gradcam and "cam_map" in st.session_state:
     st.markdown("---")
     st.markdown("### 🎯 Grad-CAM — Model Focus Area")
     c1, c2, c3 = st.columns(3)
     
-    # Process heatmap to ensure it matches original image orientation
     import cv2
+    import numpy as np
+
+    # 1. Ham Isı Haritasını Al
     heatmap = st.session_state.cam_map
     
-    # Resize heatmap to match exact IMAGE_SIZE if it hasn't already
-    # PyTorch/CV2 axis alignment fix
-    heatmap_resized = cv2.resize(heatmap, IMAGE_SIZE)
+    # 2. Boyut Kontrolü ve Zorunlu Hizalama
+    # PyTorch (H, W) -> OpenCV (W, H) uyuşmazlığı için IMAGE_SIZE'ı manuel veriyoruz
+    target_h, target_w = IMAGE_SIZE  # Genelde (224, 224)
     
+    # Isı haritasını tekrar boyutlandır (Zorunlu hizalama)
+    heatmap_resized = cv2.resize(heatmap, (target_w, target_h))
+
+    # EĞER HALA TERSSE: Alt satırdaki transpose işlemini aktif et (başındaki # sil)
+    # heatmap_resized = np.transpose(heatmap_resized) 
+
     with c1:
         st.markdown("#### Original")
-        if not uploaded_file.name.endswith(".h5"):
-            st.image(image, use_container_width=True)
+        # Orijinal resmi de aynı boyuta getir ki görsel hizalama şaşmasın
+        img_display = image.resize((target_w, target_h))
+        st.image(img_display, use_container_width=True)
             
     with c2:
         st.markdown("#### Heatmap")
-        # Ensure the heatmap is displayed with the same dimensions
         st.image(heatmap_resized, use_container_width=True, clamp=True)
         
     with c3:
-        st.markdown("#### Overlay")
+        st.markdown("#### Overlay (Corrected)")
         try:
-            # Match the input image to the heatmap resolution
-            img_arr = np.array(image.resize(IMAGE_SIZE))
+            # Orijinal resmi NumPy array'e çevir (H, W, C)
+            img_arr = np.array(img_display)
             
-            # If the image is grayscale, convert to RGB for colored overlay
+            # Grayscale -> RGB dönüşümü (Eğer gerekliyse)
             if len(img_arr.shape) == 2:
                 img_arr = cv2.cvtColor(img_arr, cv2.COLOR_GRAY2RGB)
+            elif img_arr.shape[2] == 4: # RGBA -> RGB
+                img_arr = cv2.cvtColor(img_arr, cv2.COLOR_RGBA2RGB)
             
-            # Overlay function now receives perfectly aligned arrays
-            overlay = overlay_gradcam(heatmap_resized, img_arr, alpha=GRADCAM_ALPHA)
+            # Isı haritasını renklendir ve bindir
+            # Not: heatmap_resized (0-1) arası olmalı, değilse normalize et
+            if heatmap_resized.max() > 1:
+                heatmap_resized = heatmap_resized / 255.0
+
+            # Renkli harita oluştur (Jet formatında)
+            colored_heatmap = cv2.applyColorMap(np.uint8(255 * heatmap_resized), cv2.COLORMAP_JET)
+            colored_heatmap = cv2.cvtColor(colored_heatmap, cv2.COLOR_BGR2RGB)
+            
+            # Overlay oluştur (Alpha harmanlama)
+            overlay = cv2.addWeighted(img_arr, 1 - GRADCAM_ALPHA, colored_heatmap, GRADCAM_ALPHA, 0)
+            
             st.image(overlay, use_container_width=True)
         except Exception as e:
-            st.error(f"Overlay alignment error: {e}")
+            st.error(f"Alignment Error: {e}")
 
 # ── Active Learning ───────────────────────────────────────────────────────────
 if "predicted_class" in st.session_state and st.session_state.confidence < ACTIVE_LEARNING_THRESHOLD:
