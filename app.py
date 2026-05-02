@@ -243,26 +243,45 @@ with col2:
     else:
         st.info("👈 Upload an MRI image from the left panel.")
 
-# ── Grad-CAM ──────────────────────────────────────────────────────────────────
+# ── Grad-CAM Visualization (Fixed Alignment) ──────────────────────────────────
 if uploaded_file is not None and show_gradcam and "cam_map" in st.session_state:
     st.markdown("---")
     st.markdown("### 🎯 Grad-CAM — Model Focus Area")
     c1, c2, c3 = st.columns(3)
+    
+    # Process heatmap to ensure it matches original image orientation
+    import cv2
+    heatmap = st.session_state.cam_map
+    
+    # Resize heatmap to match exact IMAGE_SIZE if it hasn't already
+    # PyTorch/CV2 axis alignment fix
+    heatmap_resized = cv2.resize(heatmap, IMAGE_SIZE)
+    
     with c1:
         st.markdown("#### Original")
         if not uploaded_file.name.endswith(".h5"):
             st.image(image, use_container_width=True)
+            
     with c2:
         st.markdown("#### Heatmap")
-        st.image(st.session_state.cam_map, use_container_width=True, clamp=True)
+        # Ensure the heatmap is displayed with the same dimensions
+        st.image(heatmap_resized, use_container_width=True, clamp=True)
+        
     with c3:
         st.markdown("#### Overlay")
         try:
+            # Match the input image to the heatmap resolution
             img_arr = np.array(image.resize(IMAGE_SIZE))
-            st.image(overlay_gradcam(st.session_state.cam_map, img_arr, alpha=GRADCAM_ALPHA),
-                      use_container_width=True)
+            
+            # If the image is grayscale, convert to RGB for colored overlay
+            if len(img_arr.shape) == 2:
+                img_arr = cv2.cvtColor(img_arr, cv2.COLOR_GRAY2RGB)
+            
+            # Overlay function now receives perfectly aligned arrays
+            overlay = overlay_gradcam(heatmap_resized, img_arr, alpha=GRADCAM_ALPHA)
+            st.image(overlay, use_container_width=True)
         except Exception as e:
-            st.error(f"Overlay error: {e}")
+            st.error(f"Overlay alignment error: {e}")
 
 # ── Active Learning ───────────────────────────────────────────────────────────
 if "predicted_class" in st.session_state and st.session_state.confidence < ACTIVE_LEARNING_THRESHOLD:
