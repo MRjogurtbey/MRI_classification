@@ -61,9 +61,10 @@ st.markdown("""
         margin-bottom: 3rem;
     }
     .result-box {
-        padding: 2rem;
+        padding: 1.5rem;
         border-radius: 10px;
-        background-color: #f0f2f6;
+        background-color: rgba(240, 242, 246, 0.5);
+        border: 1px solid rgba(49, 51, 63, 0.1);
         margin: 1rem 0;
     }
     .stButton>button {
@@ -195,13 +196,14 @@ with col1:
     )
     
     if uploaded_file is not None:
-        # Görüntüyü göster
+        # Görüntüyü göster ve session state'e kaydet
         try:
             if uploaded_file.name.endswith('.h5'):
                 st.warning("H5 dosyası yüklendi. İşleniyor...")
                 # H5 dosyası işleme kodu buraya eklenecek
             else:
                 image = Image.open(uploaded_file)
+                st.session_state.uploaded_image = image  # Session state'e kaydet
                 st.image(image, caption="Yüklenen MRI Görüntüsü", use_container_width=True)
                 
                 # Görüntü bilgileri
@@ -366,8 +368,8 @@ if uploaded_file is not None and show_gradcam and 'cam_map' in st.session_state:
     
     with col1:
         st.markdown("#### Orijinal Görüntü")
-        if not uploaded_file.name.endswith('.h5'):
-            st.image(image, use_container_width=True)
+        if not uploaded_file.name.endswith('.h5') and 'uploaded_image' in st.session_state:
+            st.image(st.session_state.uploaded_image, use_container_width=True)
     
     with col2:
         st.markdown("#### Grad-CAM Haritası")
@@ -377,8 +379,8 @@ if uploaded_file is not None and show_gradcam and 'cam_map' in st.session_state:
     with col3:
         st.markdown("#### Üst Üste Bindirme")
         try:
-            if not uploaded_file.name.endswith('.h5'):
-                image_array = np.array(image.resize(IMAGE_SIZE))
+            if not uploaded_file.name.endswith('.h5') and 'uploaded_image' in st.session_state:
+                image_array = np.array(st.session_state.uploaded_image.resize(IMAGE_SIZE))
                 overlayed = overlay_gradcam(cam_map, image_array, alpha=GRADCAM_ALPHA)
                 st.image(overlayed, use_container_width=True)
         except Exception as e:
