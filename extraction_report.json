@@ -1,7 +1,7 @@
 {
   "operation": "extract_unique_files",
-  "source": "C:\\Users\\ASUS\\Desktop\\Hackathon\\Brain Tumor MRI Dataset (Glioma, Meningioma, Pitui\\extracted",
-  "destination": "C:\\Users\\ASUS\\MRI_classification",
+  "source": "<local_dataset_path>",
+  "destination": "<project_root>",
   "current_dataset_size": 7013,
   "new_dataset_size": 10892,
   "extracted_files": {

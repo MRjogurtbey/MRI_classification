@@ -1,0 +1,70 @@
+=============================================
+NEUROBRIDGE AI - API DEMO COMMANDS
+Juri onunde calistirmak icin hazir komutlar
+=============================================
+
+1. HEALTH CHECK (API calistigindan emin ol)
+-------------------------------------------
+curl http://localhost:8000/health
+
+
+2. CLASSES LISTESI (Sinif bilgilerini al)
+-------------------------------------------
+curl http://localhost:8000/classes
+
+
+3. MRI TAHMINI (Gorsel yukle ve tahmin al)
+-------------------------------------------
+# Windows PowerShell:
+curl.exe -X POST "http://localhost:8000/predict" -F "file=@Testing/notumor/1107.jpg"
+
+# Git Bash / Linux:
+curl -X POST "http://localhost:8000/predict" \
+  -F "file=@Testing/notumor/1107.jpg"
+
+
+4. TTA ILE TAHMIN (Daha yuksek dogruluk)
+-------------------------------------------
+# Windows PowerShell:
+curl.exe -X POST "http://localhost:8000/predict?use_tta=true" -F "file=@Testing/glioma/1.jpg"
+
+
+5. SWAGGER UI (Interaktif dokumantasyon)
+-------------------------------------------
+Tarayicida ac: http://localhost:8000/docs
+
+
+6. JSON RESPONSE ORNEGI:
+-------------------------------------------
+{
+  "predicted_class": "NoTumor",
+  "confidence": 0.9969,
+  "probabilities": {
+    "Glioma": 0.0001,
+    "Meningioma": 0.0008,
+    "NoTumor": 0.9969,
+    "Pituitary": 0.0022
+  },
+  "description": "Saglikli beyin - tumor tespit edilmedi",
+  "device_used": "cuda"
+}
+
+
+=============================================
+JURI ICIN HAZIR DEMO SENARYOSU
+=============================================
+
+1. Terminal ac
+2. cd MRI_classification
+3. .venv\Scripts\activate
+4. python demo_api_live.py
+
+veya
+
+1. Tarayicida ac: http://localhost:8000/docs
+2. "Try it out" tikla
+3. MRI gorseli sec
+4. "Execute" tikla
+5. JSON response'u goster
+
+=============================================

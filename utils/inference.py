@@ -40,8 +40,9 @@ class ModelInference:
         self.image_size = image_size
         
         # Sınıf isimleri
+        # CRITICAL: Order must match model training (alphabetical: glioma, meningioma, notumor, pituitary)
         if class_names is None:
-            self.class_names = ["Glioma", "Meningioma", "Pituitary", "NoTumor"]
+            self.class_names = ["Glioma", "Meningioma", "NoTumor", "Pituitary"]
         else:
             self.class_names = class_names
         

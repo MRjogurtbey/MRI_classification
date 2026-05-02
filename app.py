@@ -65,7 +65,7 @@ st.markdown("""
 
 # ── Model cache ───────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner="Model yükleniyor...")
-def load_mri_model_v3(model_path: str):
+def load_mri_model_v4(model_path: str):
     try:
         if not Path(model_path).exists():
             st.warning(f"Model bulunamadı: {model_path}")
@@ -141,11 +141,13 @@ with st.sidebar:
 
     st.markdown("---")
     if st.button("🔄 Modeli Yükle/Yenile"):
-        with st.spinner("Yükleniyor..."):
-            st.session_state.model = load_mri_model_v3(str(model_path))
-            st.session_state.model_loaded = st.session_state.model is not None
-            if st.session_state.model_loaded:
-                st.success("✅ Model hazır!")
+        with st.spinner("Model yükleniyor..."):
+            st.session_state.model = load_mri_model_v4(str(model_path))
+            if st.session_state.model is not None:
+                st.session_state.model_loaded = True
+                st.success("✅ Model başarıyla yüklendi!")
+            else:
+                st.session_state.model_loaded = False
 
 # ── Main header ───────────────────────────────────────────────────────────────
 st.markdown('<p class="main-header">🧠 NeuroBridge AI - MRI Sınıflandırma</p>', unsafe_allow_html=True)
